@@ -540,7 +540,8 @@ def setup_deepspeed_env(cfg, stage=None):
         )
 
     os.environ["ACCELERATE_USE_DEEPSPEED"] = "true"
-    os.environ["ACCELERATE_DEEPSPEED_CONFIG_FILE"] = cfg.deepspeed
+    if not hasattr(cfg.deepspeed, "get"):
+        os.environ["ACCELERATE_DEEPSPEED_CONFIG_FILE"] = cfg.deepspeed
     os.environ["ACCELERATE_GRADIENT_ACCUMULATION_STEPS"] = str(
         cfg.gradient_accumulation_steps
     )
@@ -560,8 +561,8 @@ def setup_deepspeed_env(cfg, stage=None):
     # ACCELERATE_USE_DEEPSPEED assignment, but it must be initialized some time prior
     # to model load.
     if (
-        int(os.environ.get("WORLD_SIZE", "1")) == 1
-        and os.environ.get("AXOLOTL_IS_PREPROCESS", "0") != "1"
+            int(os.environ.get("WORLD_SIZE", "1")) == 1
+            and os.environ.get("AXOLOTL_IS_PREPROCESS", "0") != "1"
     ):
         os.environ["WORLD_SIZE"] = "1"  # force it in case not set
         os.environ["LOCAL_RANK"] = "0"  # force it in case not set
@@ -574,7 +575,8 @@ def setup_deepspeed_env(cfg, stage=None):
     init_distributed_state()
 
     # If we don't assign this, it doesn't actually get set in the accelerate weakref
-    _ = HfTrainerDeepSpeedConfig(cfg.deepspeed)
+    if not hasattr(cfg.deepspeed, "get"):
+        _ = HfTrainerDeepSpeedConfig(cfg.deepspeed)
 
 
 def setup_fsdp_envs(cfg):
@@ -637,13 +639,17 @@ def prepare_optim_env(cfg):
         cfg.fsdp = True if not cfg.fsdp else cfg.fsdp
         setup_fsdp_envs(cfg)
     elif cfg.deepspeed:
+        # Patch Invergent-001
         stage = None
-        # check if the cfg.deepspeed is a file
-        if os.path.isfile(cfg.deepspeed):
-            # parse with json
-            with open(cfg.deepspeed, "r", encoding="utf-8") as fin:
-                deepspeed_config = json.load(fin)
-            stage = deepspeed_config.get("zero_optimization", {}).get("stage", None)
+        if hasattr(cfg.deepspeed, "get"):
+            stage = cfg.deepspeed.get("zero_optimization", {}).get("stage", None)
+        else:
+            # check if the cfg.deepspeed is a file
+            if os.path.isfile(cfg.deepspeed):
+                # parse with json
+                with open(cfg.deepspeed, "r", encoding="utf-8") as fin:
+                    deepspeed_config = json.load(fin)
+                stage = deepspeed_config.get("zero_optimization", {}).get("stage", None)
         setup_deepspeed_env(cfg, stage=stage)
 
     setup_parallelism_envs(cfg)
