@@ -62,3 +62,11 @@ special_tokens:
   pad_token: "<|end_of_text|>"
 
 # save_first_step: true  # uncomment this to validate checkpoint saving works with your config
+
+plugins:
+  - axolotl.integrations.aim.AimPlugin
+
+aim:
+  aim_enable: True
+  aim_repo: /opt/aim-repo
+  aim_experiment: "my-run"
