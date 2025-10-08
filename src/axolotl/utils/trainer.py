@@ -6,6 +6,7 @@ import os
 import random
 from contextlib import contextmanager
 from functools import partial
+from tempfile import NamedTemporaryFile
 from typing import List, Optional
 
 import numpy as np
@@ -15,6 +16,7 @@ from datasets import IterableDataset, disable_caching, enable_caching
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from transformers.utils import is_torch_bf16_gpu_available
 
+from axolotl.utils.dict import DictDefault
 from axolotl.utils.distributed import init_distributed_state, reduce_and_broadcast
 from axolotl.utils.environment import check_cuda_p2p_ib_support
 from axolotl.utils.logging import get_logger
@@ -542,6 +544,13 @@ def setup_deepspeed_env(cfg, stage=None):
     os.environ["ACCELERATE_USE_DEEPSPEED"] = "true"
     if not hasattr(cfg.deepspeed, "get"):
         os.environ["ACCELERATE_DEEPSPEED_CONFIG_FILE"] = cfg.deepspeed
+    if isinstance(cfg.deepspeed, DictDefault):
+        with NamedTemporaryFile(
+            mode="w", delete=False, suffix=".json", prefix="deepspeed_config_"
+        ) as temp_file:
+            temp_file.write(json.dumps(cfg.deepspeed.to_dict(), indent=4))
+            temp_file.close()
+            cfg.deepspeed = str(temp_file.name)
     os.environ["ACCELERATE_GRADIENT_ACCUMULATION_STEPS"] = str(
         cfg.gradient_accumulation_steps
     )
@@ -561,8 +570,9 @@ def setup_deepspeed_env(cfg, stage=None):
     # ACCELERATE_USE_DEEPSPEED assignment, but it must be initialized some time prior
     # to model load.
     if (
-            int(os.environ.get("WORLD_SIZE", "1")) == 1
-            and os.environ.get("AXOLOTL_IS_PREPROCESS", "0") != "1"
+        int(os.environ.get("WORLD_SIZE", "1")) == 1
+        and os.environ.get("AXOLOTL_IS_PREPROCESS", "0") != "1"
+        and cfg.use_ray is not True
     ):
         os.environ["WORLD_SIZE"] = "1"  # force it in case not set
         os.environ["LOCAL_RANK"] = "0"  # force it in case not set
