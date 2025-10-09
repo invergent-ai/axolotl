@@ -54,20 +54,25 @@ class AimCallback(TrainerCallback):
             "num_train_epochs": args.num_train_epochs,
         }
 
-    def _track_dict(self, d: Dict[str, Any], step: int):
+    def _track_dict(self, d: Dict[str, Any], step: int, phase: str):
         for k, v in (d or {}).items():
             val = _to_number(v)
             if val is None or math.isnan(val) or math.isinf(val):
                 continue
             name = _clean_name(k)
             # add a phase context so you can filter in Aim (train vs eval)
-            self.run.track(val, name=name, step=int(step))
+            self.run.track(val, name=name, step=int(step), context={"phase": phase})
 
     def on_evaluate(self, args, state, control, metrics=None, **kwargs):
         if not self.run or not metrics:
             return
         step = metrics.get("eval_step", state.global_step)
-        self._track_dict(metrics, step=step)
+        self._track_dict(metrics, step=step, phase="eval")
+
+    def on_log(self, args, state, control, logs=None, **kwargs):
+        if not self.run or not logs:
+            return
+        self._track_dict(logs, step=state.global_step, phase="train")
 
     def on_train_end(self, args, state, control, **kwargs):
         if self.run:
