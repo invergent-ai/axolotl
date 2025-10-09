@@ -8,7 +8,6 @@ from PIL.Image import Resampling
 from torch import Tensor, zeros_like
 from transformers import ProcessorMixin
 from transformers.image_utils import load_image
-from transformers.models.smolvlm import SmolVLMProcessor
 from transformers.models.voxtral import VoxtralProcessor
 
 from axolotl.utils.dict import remove_none_values
@@ -491,13 +490,19 @@ def get_processing_strategy(
             **processing_kwargs,
         )
 
-    if isinstance(processor, SmolVLMProcessor):
-        return SmolVLM2ProcessingStrategy(
+    if isinstance(processor, Mistral3Processor):
+        return Mistral3ProcessingStrategy(
             **processing_kwargs,
         )
 
-    if isinstance(processor, Mistral3Processor):
-        return Mistral3ProcessingStrategy(
+    try:
+        from transformers import SmolVLMProcessor
+        if isinstance(processor, SmolVLMProcessor):
+            return SmolVLM2ProcessingStrategy(
+                **processing_kwargs,
+            )
+    except Exception:
+        return ProcessingStrategy(
             **processing_kwargs,
         )
 
