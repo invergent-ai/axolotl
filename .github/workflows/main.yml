@@ -15,30 +15,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - cuda: 126
-            cuda_version: 12.6.3
-            python_version: "3.11"
-            pytorch: 2.6.0
-            axolotl_extras:
-          - cuda: 126
-            cuda_version: 12.6.3
-            python_version: "3.11"
-            pytorch: 2.7.0
-            axolotl_extras:
-          - cuda: 126
-            cuda_version: 12.6.3
-            python_version: "3.11"
-            pytorch: 2.7.1
-            axolotl_extras: vllm
-            is_latest: true
           - cuda: 128
             cuda_version: 12.8.1
-            python_version: "3.11"
-            pytorch: 2.7.1
-            axolotl_extras:
-          - cuda: 128
-            cuda_version: 12.8.1
-            python_version: "3.11"
+            python_version: "3.12"
             pytorch: 2.8.0
             axolotl_extras:
     runs-on: axolotl-gpu-runner
@@ -88,36 +67,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - cuda: 126
-            cuda_version: 12.6.3
-            python_version: "3.11"
-            pytorch: 2.6.0
-            axolotl_extras:
-          - cuda: 126
-            cuda_version: 12.6.3
-            python_version: "3.11"
-            pytorch: 2.7.0
-            axolotl_extras:
-          - cuda: 126
-            cuda_version: 12.6.3
-            python_version: "3.11"
-            pytorch: 2.7.1
-            axolotl_extras:
-            is_latest:
-          - cuda: 126
-            cuda_version: 12.6.3
-            python_version: "3.11"
-            pytorch: 2.7.1
-            axolotl_extras: vllm
-            is_latest: true
           - cuda: 128
             cuda_version: 12.8.1
-            python_version: "3.11"
-            pytorch: 2.7.1
-            axolotl_extras:
-          - cuda: 128
-            cuda_version: 12.8.1
-            python_version: "3.11"
+            python_version: "3.12"
             pytorch: 2.8.0
             axolotl_extras:
     runs-on: axolotl-gpu-runner
@@ -162,26 +114,9 @@ jobs:
     strategy:
       matrix:
         include:
-          - cuda: 126
-            cuda_version: 12.6.3
-            python_version: "3.11"
-            pytorch: 2.6.0
-            axolotl_extras:
-          - cuda: 126
-            cuda_version: 12.6.3
-            python_version: "3.11"
-            pytorch: 2.7.1
-            axolotl_extras:
-            is_latest:
-          - cuda: 126
-            cuda_version: 12.6.3
-            python_version: "3.11"
-            pytorch: 2.7.1
-            axolotl_extras: vllm
-            is_latest: true
           - cuda: 128
             cuda_version: 12.8.1
-            python_version: "3.11"
+            python_version: "3.12"
             pytorch: 2.8.0
             axolotl_extras:
             is_latest:
