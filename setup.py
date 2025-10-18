@@ -25,7 +25,7 @@ def parse_requirements(extras_require_map):
                 # Handle standard packages
                 _install_requires.append(line)
     try:
-        xformers_version = [req for req in _install_requires if "xformers" in req][0]
+        xformers_version = None
         if "Darwin" in platform.system():
             # skip packages not compatible with OSX
             skip_packages = [
