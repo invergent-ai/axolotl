@@ -1,6 +1,7 @@
 --extra-index-url https://huggingface.github.io/autogptq-index/whl/cu118/
 
 # START section of dependencies that don't install on Darwin/MacOS
+torch==2.8.0
 bitsandbytes>=0.48.1
 triton==3.5.0
 liger-kernel==0.6.1
